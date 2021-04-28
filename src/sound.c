@@ -147,10 +147,12 @@ static const f64 NOTES[NUM_OCTAVES * OCTAVE_SIZE] = {
 #define DSP_VOLUME  0x22
 #define DSP_IRQ     0x80
 
-#define SAMPLE_RATE     44100
+#define SAMPLE_RATE     22050
 #define BUFFER_MS       40
 
 #define BUFFER_SIZE ((size_t) (SAMPLE_RATE * (BUFFER_MS / 1000.0)))
+
+static bool is_enabled = false;
 
 static i16 buffer[BUFFER_SIZE];
 static bool buffer_flip = false;
@@ -161,6 +163,14 @@ static u8 volume_master;
 static u8 volumes[NUM_NOTES];
 static u8 notes[NUM_NOTES];
 static u8 waves[NUM_NOTES];
+
+bool sound_enabled() {
+    return is_enabled;
+}
+
+void sound_set_enabled(bool enabled) {
+    is_enabled = enabled;
+}
 
 void sound_note(u8 index, u8 octave, u8 note) {
     notes[index] = (octave << 4) | note;
@@ -239,11 +249,6 @@ static void reset() {
     char buf0[128], buf1[128];
 
     outportb(DSP_RESET, 1);
-
-    // TODO: maybe not necessary
-    // ~3 microseconds?
-    for (size_t i = 0; i < 1000000; i++);
-
     outportb(DSP_RESET, 0);
 
     u8 status = inportb(DSP_READ_STATUS);
@@ -265,12 +270,14 @@ static void reset() {
         goto fail;
     }
 
+    sound_set_enabled(true);
     return;
 fail:
     strlcpy(buf0, "FAILED TO RESET SB16: ", 128);
     itoa(status, buf1, 128);
     strlcat(buf0, buf1, 128);
-    panic(buf0);
+    notify(buf0);
+    return;
 }
 
 static void set_sample_rate(u16 hz) {
@@ -337,6 +344,11 @@ static void configure() {
 void sound_init() {
     irq_install(MIXER_IRQ, sb16_irq_handler);
     reset();
+
+    if (!sound_enabled()) {
+        return;
+    }
+
     configure();
 
     transfer(buffer, BUFFER_SIZE);
