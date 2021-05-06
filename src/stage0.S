@@ -39,7 +39,7 @@ _start:
        How many sectors do we read, value in cx
      */
 
-    movw $0x25, %cx
+    movw $0x40, %cx
     movw $0x1000, segment
     movw $0x0000, offset
     movw $1, sector
@@ -100,11 +100,6 @@ sector_same_head_cylinder:
 sector_same_segment:
     pop %cx
     loop sector_loop
-
-    /* video mode: 320x200 @ 16 colors */
-    xorb %ah, %ah
-    movb $0x13, %al
-    int $0x10 
 
     /* enable A20 line */
     cli

@@ -15,7 +15,7 @@
 #define FREQ_OF_DIV(_d) (PIT_HZ / (_d))
 #define REAL_FREQ_OF_FREQ(_f) (FREQ_OF_DIV(DIV_OF_FREQ((_f))))
 
-static struct {
+static volatile struct {
     u64 frequency;
     u64 divisor;
     u64 ticks;
@@ -29,7 +29,7 @@ static void timer_set(int hz) {
     outportb(PIT_A, (d >> 8) & PIT_MASK);
 }
 
-u64 timer_get() {
+u64 volatile timer_get() {
     return state.ticks;
 }
 
@@ -45,4 +45,11 @@ void timer_init() {
     //timer_set(state.divisor);
     timer_set(TIMER_TPS);
     irq_install(0, timer_handler);
+}
+
+void timer_waitTicks(u64 ticksToWait)
+{
+    u64 volatile ticksStarted = timer_get();
+
+    while ((timer_get() - ticksStarted) < ticksToWait);
 }

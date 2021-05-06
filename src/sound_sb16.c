@@ -246,7 +246,7 @@ static void reset() {
     return;
 fail:
     strlcpy(buf0, "FAILED TO RESET SB16: ", 128);
-    itoa(status, buf1, 128);
+    itoa(status, buf1, 16, 128);
     strlcat(buf0, buf1, 128);
     notify(buf0);
     return;
@@ -306,7 +306,7 @@ static void configure() {
     u8 v = MIXER_IRQ;
     if (v != MIXER_IRQ) {
         char buf0[128], buf1[128];
-        itoa(v, buf0, 128);
+        itoa(v, buf0, 16, 128);
         strlcpy(buf1, "SB16 HAS INCORRECT IRQ: ", 128);
         strlcat(buf1, buf0, 128);
         panic(buf1);

@@ -64,24 +64,34 @@ typedef u8 bool;
 #define CLI() asm ("cli")
 #define STI() asm ("sti")
 
-static inline u16 inports(u16 port) {
-    u16 r;
-    asm("inw %1, %0" : "=a" (r) : "dN" (port));
-    return r;
-}
-
-static inline void outports(u16 port, u16 data) {
-    asm("outw %1, %0" : : "dN" (port), "a" (data));
-}
-
 static inline u8 inportb(u16 port) {
     u8 r;
     asm("inb %1, %0" : "=a" (r) : "dN" (port));
     return r;
 }
 
+static inline u16 inportw(u16 port) {
+    u16 r;
+    asm("inw %1, %0" : "=a" (r) : "dN" (port));
+    return r;
+}
+
+static inline u32 inportl(u16 port) {
+    u32 r;
+    asm("inl %1, %0" : "=a" (r) : "dN" (port));
+    return r;
+}
+
 static inline void outportb(u16 port, u8 data) {
     asm("outb %1, %0" : : "dN" (port), "a" (data));
+}
+
+static inline void outportw(u16 port, u16 data) {
+    asm("outw %1, %0" : : "dN" (port), "a" (data));
+}
+
+static inline void outportl(u16 port, u32 data) {
+    asm("outl %1, %0" : : "dN" (port), "a" (data));
 }
 
 static inline size_t strlen(const char *str) {
@@ -92,7 +102,7 @@ static inline size_t strlen(const char *str) {
     return l;
 }
 
-static inline char *itoa(i32 x, char *s, size_t sz) {
+static inline char *itoa(i32 x, char *s, int base, size_t sz) {
     // TODO: holy god this is bad code we need some error handling here
     if (sz < 20) {
         extern void panic(const char *);
@@ -106,9 +116,9 @@ static inline char *itoa(i32 x, char *s, size_t sz) {
     i = 0;
 
     do {
-        tmp = x % 10;
+        tmp = x % base;
         s[i++] = (tmp < 10) ? (tmp + '0') : (tmp + 'a' - 10);
-    } while (x /= 10);
+    } while (x /= base);
     s[i--] = 0;
 
     for (j = 0; j < i; j++, i--) {

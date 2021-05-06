@@ -135,6 +135,8 @@ static const u8 FONT[128][8] = {
 };
 
 void font_char(char c, size_t x, size_t y, u8 color) {
+    c &= 0x7f;
+    
     assert(c >= 0, "INVALID CHARACTER");
 
     const u8 *glyph = FONT[(size_t) c];

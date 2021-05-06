@@ -10,6 +10,7 @@
 #include "fpu.h"
 #include "sound.h"
 #include "music.h"
+#include "textMode.h"
 
 #define FPS 30
 #define LEVELS 30
@@ -433,7 +434,7 @@ static void render_ui() {
 
 #define RENDER_STAT(_title, _value, _color, _x, _y, _w) do {\
         char buf[32];\
-        itoa((_value), buf, 32);\
+        itoa((_value), buf, 10, 32);\
         font_str_doubled((_title), (_x), (_y), COLOR(7, 7, 3));\
         font_str_doubled(buf, (_x) + (_w) - font_width(buf), (_y) + TILE_SIZE, (_color));\
     } while (0);
@@ -491,7 +492,7 @@ static void render_game_over() {
     );
 
     char buf_score[64];
-    itoa(state.score, buf_score, 64);
+    itoa(state.score, buf_score, 10, 64);
 
     font_str_doubled(
         "SCORE:",
@@ -686,13 +687,18 @@ void render_menu() {
 }
 
 void _main(u32 magic) {
+    textMode_clear();
+
     idt_init();
     isr_init();
     fpu_init();
     irq_init();
-    screen_init();
     timer_init();
     keyboard_init();
+
+    pci_init();
+
+    screen_init();
     generate_sprites();
 
     sound_init();
