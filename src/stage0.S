@@ -39,7 +39,7 @@ _start:
        How many sectors do we read, value in cx
      */
 
-    movw $0x40, %cx
+    movw $0x80, %cx
     movw $0x1000, segment
     movw $0x0000, offset
     movw $1, sector
