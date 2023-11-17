@@ -62,5 +62,5 @@ static void keyboard_handler(struct Registers *regs) {
 }
 
 void keyboard_init() {
-    irq_install(1, keyboard_handler);
+    irq_install(1, keyboard_handler);  // keyboard = irq1
 }

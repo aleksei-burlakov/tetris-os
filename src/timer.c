@@ -44,5 +44,5 @@ void timer_init() {
     state.ticks = 0;
     //timer_set(state.divisor);
     timer_set(TIMER_TPS);
-    irq_install(0, timer_handler);
+    irq_install(0, timer_handler); // timer = irq0
 }
